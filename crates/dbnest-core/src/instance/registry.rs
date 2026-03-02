@@ -1,4 +1,4 @@
-use crate::{paths::Dirs, Result};
+use crate::{Result, paths::Dirs};
 use fs2::FileExt;
 use std::{fs::File, io::Write};
 
@@ -25,7 +25,7 @@ impl Registry {
         let lock_path = self.dirs.base.join(".registry.lock");
 
         let lock = File::create(lock_path)?;
-        
+
         // prevent concurrent writes
         lock.lock_exclusive()?;
 

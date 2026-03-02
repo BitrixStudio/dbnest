@@ -39,7 +39,10 @@ impl UpArgs {
                 engine,
                 sqlite: Some(SqliteSpec { path: self.path }),
             },
-            Engine::Postgres | Engine::Mysql => InstanceSpec { engine, sqlite: None },
+            Engine::Postgres | Engine::Mysql => InstanceSpec {
+                engine,
+                sqlite: None,
+            },
         };
         dbnest_core::provision(spec)
     }

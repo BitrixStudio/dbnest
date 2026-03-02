@@ -1,6 +1,6 @@
-use crate::{DbnestError, Result};
 use crate::instance::Instance;
 use crate::schema::plan::SqlPlan;
+use crate::{DbnestError, Result};
 
 pub fn apply_sqlite_plan(inst: &Instance, plan: &SqlPlan) -> Result<()> {
     let sqlite = inst
@@ -16,8 +16,9 @@ pub fn apply_sqlite_plan(inst: &Instance, plan: &SqlPlan) -> Result<()> {
         .map_err(|e| DbnestError::InvalidArgument(format!("sqlite transaction failed: {e}")))?;
 
     for stmt in &plan.statements {
-        tx.execute_batch(stmt)
-            .map_err(|e| DbnestError::InvalidArgument(format!("sqlite apply failed: {e}\nSQL: {stmt}")))?;
+        tx.execute_batch(stmt).map_err(|e| {
+            DbnestError::InvalidArgument(format!("sqlite apply failed: {e}\nSQL: {stmt}"))
+        })?;
     }
 
     tx.commit()

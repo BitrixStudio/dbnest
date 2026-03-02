@@ -31,7 +31,7 @@ fn main() {
                 }
             }
             Ok(())
-        },
+        }
         Cmd::Apply(args) => args.run(),
     };
 

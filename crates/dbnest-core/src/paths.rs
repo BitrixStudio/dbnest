@@ -1,4 +1,4 @@
-use crate::{error::DbnestError, Result};
+use crate::{Result, error::DbnestError};
 use directories::ProjectDirs;
 use std::path::{Path, PathBuf};
 
@@ -11,14 +11,19 @@ pub struct Dirs {
 
 impl Dirs {
     pub fn for_app() -> Result<Self> {
-        let proj = ProjectDirs::from("dev", "dbnest", "dbnest")
-            .ok_or_else(|| DbnestError::InvalidArgument("cannot determine OS data directory".into()))?;
+        let proj = ProjectDirs::from("dev", "dbnest", "dbnest").ok_or_else(|| {
+            DbnestError::InvalidArgument("cannot determine OS data directory".into())
+        })?;
 
         let base = proj.data_dir().to_path_buf();
         let instances = base.join("instances");
         let sqlite = base.join("sqlite");
 
-        Ok(Self { base, instances, sqlite })
+        Ok(Self {
+            base,
+            instances,
+            sqlite,
+        })
     }
 
     pub fn ensure(&self) -> Result<()> {

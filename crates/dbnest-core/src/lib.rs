@@ -4,11 +4,16 @@ pub mod ids;
 pub mod instance;
 pub mod instance_ops;
 pub mod paths;
-pub mod sqlite;
 pub mod schema;
+pub mod sqlite;
 
 pub use engine::Engine;
 pub use error::{DbnestError, Result};
-pub use instance::{Instance, InstanceSpec, InstanceSummary, SqliteSpec, Backend, Status, ConnectionInfo};
+pub use instance::{
+    Backend, ConnectionInfo, Instance, InstanceSpec, InstanceSummary, SqliteSpec, Status,
+};
 
-pub use instance_ops::{list_instances, provision, remove_instance, stop_instance, apply_schema_to_instance, plan_schema};
+pub use instance_ops::{
+    apply_schema_to_instance, list_instances, plan_schema, provision, remove_instance,
+    stop_instance,
+};

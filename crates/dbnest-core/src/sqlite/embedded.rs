@@ -2,22 +2,27 @@ use crate::{
     engine::Engine,
     error::{DbnestError, Result},
     ids::new_instance_id,
-    instance::{Instance, InstanceSpec, SqliteInfo, Backend},
     instance::Registry,
+    instance::{Backend, Instance, InstanceSpec, SqliteInfo},
 };
 use std::path::{Path, PathBuf};
 use time::OffsetDateTime;
 
 pub fn provision_sqlite(spec: InstanceSpec) -> Result<Instance> {
     if spec.engine != Engine::Sqlite {
-        return Err(DbnestError::InvalidArgument("provision_sqlite called with non-sqlite engine".into()));
+        return Err(DbnestError::InvalidArgument(
+            "provision_sqlite called with non-sqlite engine".into(),
+        ));
     }
 
     let registry = Registry::new()?;
     let id = new_instance_id();
-    let sqlite_spec = spec.sqlite.unwrap_or(crate::instance::SqliteSpec { path: None });
+    let sqlite_spec = spec
+        .sqlite
+        .unwrap_or(crate::instance::SqliteSpec { path: None });
 
-    let (path, managed) = resolve_sqlite_path(registry.dirs().managed_sqlite_file(&id), sqlite_spec.path)?;
+    let (path, managed) =
+        resolve_sqlite_path(registry.dirs().managed_sqlite_file(&id), sqlite_spec.path)?;
     ensure_parent_dir(&path)?;
 
     if !path.exists() {
@@ -31,7 +36,9 @@ pub fn provision_sqlite(spec: InstanceSpec) -> Result<Instance> {
         engine: Engine::Sqlite,
         backend: Backend::Embedded,
         created_at: OffsetDateTime::now_utc(),
-        connection: crate::ConnectionInfo { database_url: db_url },
+        connection: crate::ConnectionInfo {
+            database_url: db_url,
+        },
         sqlite: Some(SqliteInfo { path, managed }),
     };
 
@@ -39,11 +46,18 @@ pub fn provision_sqlite(spec: InstanceSpec) -> Result<Instance> {
     Ok(inst)
 }
 
-fn resolve_sqlite_path(managed_default: PathBuf, user_path: Option<PathBuf>) -> Result<(PathBuf, bool)> {
+fn resolve_sqlite_path(
+    managed_default: PathBuf,
+    user_path: Option<PathBuf>,
+) -> Result<(PathBuf, bool)> {
     match user_path {
         None => Ok((managed_default, true)),
         Some(p) => {
-            let abs = if p.is_absolute() { p } else { std::env::current_dir()?.join(p) };
+            let abs = if p.is_absolute() {
+                p
+            } else {
+                std::env::current_dir()?.join(p)
+            };
             Ok((abs, false))
         }
     }

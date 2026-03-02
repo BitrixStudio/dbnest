@@ -1,5 +1,8 @@
 mod model;
 mod registry;
 
-pub use model::{Instance, InstanceSpec, InstanceSummary, SqliteSpec, SqliteInfo, Backend, Status, ConnectionInfo};
+pub use model::{
+    Backend, ConnectionInfo, Instance, InstanceSpec, InstanceSummary, SqliteInfo, SqliteSpec,
+    Status,
+};
 pub use registry::Registry;
