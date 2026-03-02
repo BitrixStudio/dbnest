@@ -34,7 +34,7 @@ impl Registry {
         f.write_all(&json)?;
         f.write_all(b"\n")?;
 
-        lock.unlock()?;
+        fs2::FileExt::unlock(&lock)?;
         Ok(())
     }
 
