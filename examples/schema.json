@@ -1,0 +1,15 @@
+{
+  "tables": [
+    {
+      "name": "users",
+      "columns": [
+        { "name": "id", "type": "uuid", "primary_key": true },
+        { "name": "email", "type": "string", "unique": true, "nullable": false },
+        { "name": "created_at", "type": "timestamp", "default": "now" }
+      ],
+      "indexes": [
+        { "name": "idx_users_email", "columns": ["email"], "unique": true }
+      ]
+    }
+  ]
+}

@@ -5,6 +5,12 @@ use crate::{
     sqlite::provision_sqlite,
 };
 
+use crate::schema::load::{load_schema_dir, load_schema_json};
+use crate::schema::validate::validate_schema;
+use crate::schema::plan::generators::plan_sqlite;
+use crate::schema::apply::apply_sqlite_plan;
+use std::path::Path;
+
 pub fn provision(spec: InstanceSpec) -> Result<Instance> {
     match spec.engine {
         Engine::Sqlite => provision_sqlite(spec),
@@ -50,4 +56,43 @@ pub fn remove_instance(id: &str) -> Result<()> {
 
     registry.remove_metadata(id)?;
     Ok(())
+}
+
+pub fn apply_schema_to_instance(instance_id: &str, schema_path: &Path) -> Result<()> {
+    let registry = Registry::new()?;
+    let inst = registry.read(instance_id).map_err(|_| DbnestError::InstanceNotFound(instance_id.into()))?;
+
+    let schema = load_schema_auto(schema_path)?;
+    validate_schema(&schema)?;
+
+    match inst.engine {
+        Engine::Sqlite => {
+            let plan = plan_sqlite(&schema);
+            apply_sqlite_plan(&inst, &plan)?;
+            Ok(())
+        }
+        Engine::Postgres | Engine::Mysql => {
+            Err(DbnestError::InvalidArgument("apply schema not implemented for this engine yet".into()))
+        }
+    }
+}
+
+pub fn plan_schema(engine: Engine, schema_path: &Path) -> Result<crate::schema::plan::SqlPlan> {
+    let schema = load_schema_auto(schema_path)?;
+    validate_schema(&schema)?;
+
+    Ok(match engine {
+        Engine::Sqlite => crate::schema::plan::generators::plan_sqlite(&schema),
+        Engine::Postgres | Engine::Mysql => {
+            return Err(DbnestError::InvalidArgument("plan not implemented for this engine yet".into()))
+        }
+    })
+}
+
+fn load_schema_auto(path: &Path) -> Result<crate::schema::model::Schema> {
+    if path.is_dir() {
+        load_schema_dir(path)
+    } else {
+        load_schema_json(path)
+    }
 }

@@ -21,6 +21,18 @@ fn main() {
         }
         Cmd::Stop(args) => args.run(),
         Cmd::Rm(args) => args.run(),
+        Cmd::Plan(args) => {
+            let plan = args.run().unwrap();
+            if root.json {
+                println!("{}", serde_json::to_string_pretty(&plan).unwrap());
+            } else {
+                for s in plan.statements {
+                    println!("{s}\n");
+                }
+            }
+            Ok(())
+        },
+        Cmd::Apply(args) => args.run(),
     };
 
     if let Err(e) = result {

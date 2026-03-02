@@ -17,6 +17,8 @@ pub enum Cmd {
     Ls(LsArgs),
     Stop(StopArgs),
     Rm(RmArgs),
+    Plan(PlanArgs),
+    Apply(ApplyArgs),
 }
 
 #[derive(Debug, Parser)]
@@ -69,6 +71,32 @@ pub struct RmArgs {
 impl RmArgs {
     pub fn run(self) -> dbnest_core::Result<()> {
         dbnest_core::remove_instance(&self.id)
+    }
+}
+
+#[derive(Debug, Parser)]
+pub struct PlanArgs {
+    pub engine: String,
+    #[arg(long)]
+    pub schema: std::path::PathBuf,
+}
+impl PlanArgs {
+    pub fn run(self) -> dbnest_core::Result<dbnest_core::schema::plan::SqlPlan> {
+        let engine = parse_engine(&self.engine)?;
+        dbnest_core::plan_schema(engine, &self.schema)
+    }
+}
+
+#[derive(Debug, Parser)]
+pub struct ApplyArgs {
+    #[arg(long)]
+    pub id: String,
+    #[arg(long)]
+    pub schema: std::path::PathBuf,
+}
+impl ApplyArgs {
+    pub fn run(self) -> dbnest_core::Result<()> {
+        dbnest_core::apply_schema_to_instance(&self.id, &self.schema)
     }
 }
 
