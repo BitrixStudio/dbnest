@@ -203,7 +203,7 @@ dependencies = [
 
 [[package]]
 name = "dbnest"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "clap",
  "dbnest-core 0.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
