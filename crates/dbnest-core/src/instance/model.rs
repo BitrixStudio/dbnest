@@ -7,12 +7,20 @@ use time::OffsetDateTime;
 pub struct InstanceSpec {
     pub engine: Engine,
     pub sqlite: Option<SqliteSpec>,
-    // postgres/mysql spec will come later (docker)
+    pub postgres: Option<PostgresSpec>,
 }
 
 #[derive(Debug, Clone)]
 pub struct SqliteSpec {
     pub path: Option<PathBuf>,
+}
+
+#[derive(Debug, Clone)]
+pub struct PostgresSpec {
+    pub user: String,
+    pub password: String,
+    pub db: String,
+    pub image: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -22,7 +30,12 @@ pub struct Instance {
     pub backend: Backend,
     pub created_at: OffsetDateTime,
     pub connection: ConnectionInfo,
+
+    #[serde(default)]
     pub sqlite: Option<SqliteInfo>,
+
+    #[serde(default)]
+    pub container: Option<ContainerInfo>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -35,6 +48,23 @@ pub enum Backend {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ConnectionInfo {
     pub database_url: String,
+
+    #[serde(default)]
+    pub host: Option<String>,
+    #[serde(default)]
+    pub port: Option<u16>,
+    #[serde(default)]
+    pub database: Option<String>,
+    #[serde(default)]
+    pub user: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ContainerInfo {
+    // Current implemented runtime "docker" (future: "podman", "kubernetes")
+    pub runtime: String,
+    pub container_id: String,
+    pub image: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

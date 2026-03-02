@@ -29,6 +29,14 @@ pub struct UpArgs {
     /// If omitted, dbnest manages a file under app data dir
     #[arg(long)]
     pub path: Option<std::path::PathBuf>,
+    #[arg(long)]
+    pub user: Option<String>,
+    #[arg(long)]
+    pub password: Option<String>,
+    #[arg(long)]
+    pub db: Option<String>,
+    #[arg(long)]
+    pub image: Option<String>,
 }
 
 impl UpArgs {
@@ -38,10 +46,40 @@ impl UpArgs {
             Engine::Sqlite => InstanceSpec {
                 engine,
                 sqlite: Some(SqliteSpec { path: self.path }),
+                postgres: None,
             },
-            Engine::Postgres | Engine::Mysql => InstanceSpec {
+            Engine::Postgres => {
+                let user = self.user.ok_or_else(|| {
+                    dbnest_core::DbnestError::InvalidArgument(
+                        "--user is required for postgres".into(),
+                    )
+                })?;
+                let password = self.password.ok_or_else(|| {
+                    dbnest_core::DbnestError::InvalidArgument(
+                        "--password is required for postgres".into(),
+                    )
+                })?;
+                let db = self.db.ok_or_else(|| {
+                    dbnest_core::DbnestError::InvalidArgument(
+                        "--db is required for postgres".into(),
+                    )
+                })?;
+
+                InstanceSpec {
+                    engine,
+                    sqlite: None,
+                    postgres: Some(dbnest_core::instance::PostgresSpec {
+                        user,
+                        password,
+                        db,
+                        image: self.image,
+                    }),
+                }
+            }
+            Engine::Mysql => InstanceSpec {
                 engine,
                 sqlite: None,
+                postgres: None,
             },
         };
         dbnest_core::provision(spec)

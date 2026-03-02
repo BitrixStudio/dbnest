@@ -1,0 +1,10 @@
+[
+  { "name": "id", "type": "uuid", "primary_key": true },
+  {
+    "name": "email",
+    "type": "string",
+    "unique": true,
+    "nullable": false
+  },
+  { "name": "created_at", "type": "timestamp", "default": "now" }
+]

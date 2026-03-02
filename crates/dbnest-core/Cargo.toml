@@ -1,6 +1,6 @@
 [package]
 name = "dbnest-core"
-version = "0.0.1"
+version = "0.0.2"
 edition = "2024"
 license = "MIT"
 description = "Internal core engine, docs to be written in future"
@@ -17,3 +17,5 @@ directories = "5"
 fs2 = "0.4"
 rusqlite = { version = "0.32", features = ["bundled"] }
 walkdir = "2"
+postgres = "0.19"
+urlencoding = "2.1"

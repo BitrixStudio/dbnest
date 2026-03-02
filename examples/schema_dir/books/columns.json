@@ -1,0 +1,10 @@
+[
+  { "name": "id", "type": "uuid", "primary_key": true },
+  {
+    "name": "name",
+    "type": "string",
+    "unique": true,
+    "nullable": false
+  },
+  { "name": "year_released", "type": "timestamp", "default": "now" }
+]

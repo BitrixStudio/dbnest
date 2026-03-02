@@ -38,8 +38,13 @@ pub fn provision_sqlite(spec: InstanceSpec) -> Result<Instance> {
         created_at: OffsetDateTime::now_utc(),
         connection: crate::ConnectionInfo {
             database_url: db_url,
+            host: None,
+            port: None,
+            database: None,
+            user: None,
         },
         sqlite: Some(SqliteInfo { path, managed }),
+        container: None,
     };
 
     registry.write(&inst)?;
