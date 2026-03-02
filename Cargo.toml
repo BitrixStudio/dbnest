@@ -1,0 +1,11 @@
+[workspace]
+members = [
+  "crates/dbnest-core",
+  "crates/dbnest-cli",
+]
+resolver = "2"
+
+[workspace.package]
+edition = "2024"
+license = "MIT"
+repository = "https://github.com/BitrixStudio/dbnest"
