@@ -4,7 +4,6 @@ version = "0.0.1"
 edition = "2024"
 license = "MIT"
 description = "Internal core engine, docs to be written in future"
-documentation = "README.md"
 repository = "https://github.com/BitrixStudio/dbnest/crates/dbnest-core"
 
 [dependencies]
