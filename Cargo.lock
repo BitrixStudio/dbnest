@@ -149,7 +149,7 @@ name = "dbnest"
 version = "0.1.0"
 dependencies = [
  "clap",
- "dbnest-core",
+ "dbnest-core 0.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde",
  "serde_json",
 ]
@@ -157,6 +157,24 @@ dependencies = [
 [[package]]
 name = "dbnest-core"
 version = "0.0.1"
+dependencies = [
+ "anyhow",
+ "directories",
+ "fs2",
+ "rusqlite",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+ "time",
+ "uuid",
+ "walkdir",
+]
+
+[[package]]
+name = "dbnest-core"
+version = "0.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bb886f110d8a38740e333be21d9a50e77b42d1adbaffc17bea10bdc53b3431f6"
 dependencies = [
  "anyhow",
  "directories",
