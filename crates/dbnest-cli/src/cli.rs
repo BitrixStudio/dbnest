@@ -19,6 +19,7 @@ pub enum Cmd {
     Rm(RmArgs),
     Plan(PlanArgs),
     Apply(ApplyArgs),
+    Status(StatusArgs),
 }
 
 #[derive(Debug, Parser)]
@@ -37,6 +38,8 @@ pub struct UpArgs {
     pub db: Option<String>,
     #[arg(long)]
     pub image: Option<String>,
+    #[arg(long)]
+    pub schema: Option<std::path::PathBuf>,
 }
 
 impl UpArgs {
@@ -82,8 +85,38 @@ impl UpArgs {
                 postgres: None,
             },
         };
-        dbnest_core::provision(spec)
+        dbnest_core::provision_with_schema(spec, self.schema.as_deref())
     }
+}
+
+#[derive(Debug, clap::Parser)]
+pub struct StatusArgs {
+    /// Instance id (omit when using --all)
+    pub id: Option<String>,
+
+    /// Show status for all instances
+    #[arg(long)]
+    pub all: bool,
+}
+
+impl StatusArgs {
+    pub fn run(self) -> dbnest_core::Result<StatusResult> {
+        if self.all {
+            let reports = dbnest_core::status_all()?;
+            Ok(StatusResult::Many(reports))
+        } else {
+            let id = self.id.ok_or_else(|| {
+                dbnest_core::DbnestError::InvalidArgument("provide <id> or use --all".into())
+            })?;
+            let report = dbnest_core::status_one(&id)?;
+            Ok(StatusResult::One(report))
+        }
+    }
+}
+
+pub enum StatusResult {
+    One(dbnest_core::InstanceStatusReport),
+    Many(Vec<dbnest_core::InstanceStatusReport>),
 }
 
 #[derive(Debug, Parser)]

@@ -6,23 +6,41 @@ use cli::{Cmd, Root};
 use output::{print_instance, print_instances};
 
 fn main() {
+    if let Err(e) = run() {
+        eprintln!("{e}");
+        std::process::exit(1);
+    }
+}
+
+fn run() -> dbnest_core::Result<()> {
     let root = Root::parse();
 
-    let result = match root.cmd {
+    match root.cmd {
         Cmd::Up(args) => {
-            let inst = args.run().unwrap();
+            let inst = args.run()?;
             print_instance(&inst, root.json);
-            Ok(())
         }
         Cmd::Ls(args) => {
-            let list = args.run().unwrap();
+            let list = args.run()?;
             print_instances(&list, root.json);
-            Ok(())
         }
-        Cmd::Stop(args) => args.run(),
-        Cmd::Rm(args) => args.run(),
+        Cmd::Stop(args) => {
+            let id = args.id.clone();
+            args.run()?;
+            output::print_ok(root.json, "stop", Some(&id));
+        }
+        Cmd::Rm(args) => {
+            let id = args.id.clone();
+            args.run()?;
+            output::print_ok(root.json, "rm", Some(&id));
+        }
+        Cmd::Apply(args) => {
+            let id = args.id.clone();
+            args.run()?;
+            output::print_ok(root.json, "apply", Some(&id));
+        }
         Cmd::Plan(args) => {
-            let plan = args.run().unwrap();
+            let plan = args.run()?;
             if root.json {
                 println!("{}", serde_json::to_string_pretty(&plan).unwrap());
             } else {
@@ -30,13 +48,12 @@ fn main() {
                     println!("{s}\n");
                 }
             }
-            Ok(())
         }
-        Cmd::Apply(args) => args.run(),
-    };
-
-    if let Err(e) = result {
-        eprintln!("{e}");
-        std::process::exit(1);
+        Cmd::Status(args) => {
+            let res = args.run()?; // StatusResult, not Result
+            output::print_status(root.json, res);
+        }
     }
+
+    Ok(())
 }

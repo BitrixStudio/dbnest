@@ -7,6 +7,7 @@ Cozy local databases in seconds.
 ## Current features (v0.1.0)
 
 - SQLite embedded provisioning (no external dependencies)
+- PostgreSQL server docker instance (docker required)
 - Instance registry (list / remove)
 - Schema workflow:
   - `plan` generates SQL from schema
@@ -17,7 +18,6 @@ Cozy local databases in seconds.
 
 Planned next:
 
-- Postgres via Docker
 - MySQL via Docker
 
 ---

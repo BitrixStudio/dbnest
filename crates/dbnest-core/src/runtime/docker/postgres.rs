@@ -58,11 +58,16 @@ pub fn provision_postgres_docker(spec: InstanceSpec) -> Result<Instance> {
         ])
         .output()?;
 
+    let cmd_pretty =
+        format!("docker run -d --name {container_name} -p 127.0.0.1:{host_port}:5432 {image}");
+
     if !output.status.success() {
-        let stderr = String::from_utf8_lossy(&output.stderr);
-        return Err(DbnestError::InvalidArgument(format!(
-            "docker run failed: {stderr}"
-        )));
+        let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
+        return Err(DbnestError::DockerCommandFailed {
+            command: cmd_pretty,
+            stderr,
+            hint: "Check Docker is running (try `docker ps`). On Windows/macOS ensure Docker Desktop is started.".into(),
+        });
     }
 
     let container_id = String::from_utf8_lossy(&output.stdout).trim().to_string();

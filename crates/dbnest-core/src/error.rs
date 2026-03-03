@@ -18,4 +18,11 @@ pub enum DbnestError {
 
     #[error("json error: {0}")]
     Json(#[from] serde_json::Error),
+
+    #[error("docker command failed\ncommand: {command}\nstderr: {stderr}\nhint: {hint}")]
+    DockerCommandFailed {
+        command: String,
+        stderr: String,
+        hint: String,
+    },
 }

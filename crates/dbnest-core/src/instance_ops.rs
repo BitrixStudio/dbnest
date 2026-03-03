@@ -5,6 +5,8 @@ use crate::{
     sqlite::provision_sqlite,
 };
 
+pub use crate::instance::{status_all, status_one};
+
 use crate::schema::apply::apply_sqlite_plan;
 use crate::schema::load::{load_schema_dir, load_schema_json};
 use crate::schema::plan::generators::plan_sqlite;
@@ -21,6 +23,23 @@ pub fn provision(spec: InstanceSpec) -> Result<Instance> {
             "MySQL not implemented yet".into(),
         )),
     }
+}
+
+pub fn provision_with_schema(spec: InstanceSpec, schema_path: Option<&Path>) -> Result<Instance> {
+    let inst = provision(spec)?;
+
+    let Some(schema_path) = schema_path else {
+        return Ok(inst);
+    };
+
+    // Apply schema; rollback on failure
+    if let Err(e) = apply_schema_to_instance(&inst.id, schema_path) {
+        // best-effort cleanup
+        let _ = remove_instance(&inst.id);
+        return Err(e);
+    }
+
+    Ok(inst)
 }
 
 pub fn list_instances() -> Result<Vec<InstanceSummary>> {
@@ -53,15 +72,12 @@ pub fn stop_instance(id: &str) -> Result<()> {
                 .container
                 .as_ref()
                 .ok_or_else(|| DbnestError::InvalidArgument("missing container info".into()))?;
-            let out = std::process::Command::new("docker")
-                .args(["stop", &c.container_id])
-                .output()?;
-            if !out.status.success() {
-                let stderr = String::from_utf8_lossy(&out.stderr);
-                return Err(DbnestError::InvalidArgument(format!(
-                    "docker stop failed: {stderr}"
-                )));
-            }
+
+            crate::runtime::docker::util::run_docker(
+                &["stop", &c.container_id],
+                "Check Docker is running (try `docker ps`). If the container was removed manually, run `dbnest rm <id>` to clean up the registry.",
+            )?;
+
             Ok(())
         }
         Engine::Mysql => Ok(()),
@@ -88,18 +104,15 @@ pub fn remove_instance(id: &str) -> Result<()> {
             }
         }
         Engine::Postgres => {
-            if let Some(c) = &inst.container {
-                // remove container (force to ensure running containers are removed too)
-                let out = std::process::Command::new("docker")
-                    .args(["rm", "-f", &c.container_id])
-                    .output()?;
-                if !out.status.success() {
-                    let stderr = String::from_utf8_lossy(&out.stderr);
-                    return Err(DbnestError::InvalidArgument(format!(
-                        "docker rm failed: {stderr}"
-                    )));
-                }
-            }
+            let c = inst
+                .container
+                .as_ref()
+                .ok_or_else(|| DbnestError::InvalidArgument("missing container info".into()))?;
+
+            crate::runtime::docker::util::run_docker(
+                &["rm", "-f", &c.container_id],
+                "Check Docker is running (try `docker ps`). If the container is already gone, you can manually delete the instance metadata file.",
+            )?;
         }
         Engine::Mysql => {}
     }
