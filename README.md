@@ -59,6 +59,14 @@ List instances
 dbnest ls
 ```
 
+Check instance status
+
+```bash
+dbnest status {instance_id}
+dbnest status --all      # status for all dbnest instances
+```
+
+
 2. Define schema
    Create a schema file or directory layout
 
