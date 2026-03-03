@@ -10,6 +10,15 @@ pub struct Dirs {
 }
 
 impl Dirs {
+    pub fn from_base(base: PathBuf) -> Self {
+        let instances = base.join("instances");
+        let sqlite = base.join("sqlite");
+        Self {
+            base,
+            instances,
+            sqlite,
+        }
+    }
     pub fn for_app() -> Result<Self> {
         let proj = ProjectDirs::from("dev", "dbnest", "dbnest").ok_or_else(|| {
             DbnestError::InvalidArgument("cannot determine OS data directory".into())

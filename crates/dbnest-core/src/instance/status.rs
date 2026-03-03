@@ -8,6 +8,15 @@ use std::process::Command;
 
 pub fn status_one(id: &str) -> Result<InstanceStatusReport> {
     let registry = Registry::new()?;
+    status_one_with_registry(&registry, id)
+}
+
+pub fn status_all() -> Result<Vec<InstanceStatusReport>> {
+    let registry = Registry::new()?;
+    status_all_with_registry(&registry)
+}
+
+pub fn status_one_with_registry(registry: &Registry, id: &str) -> Result<InstanceStatusReport> {
     let inst = registry
         .read(id)
         .map_err(|_| DbnestError::InstanceNotFound(id.to_string()))?;
@@ -15,8 +24,7 @@ pub fn status_one(id: &str) -> Result<InstanceStatusReport> {
     Ok(status_for_instance(&inst))
 }
 
-pub fn status_all() -> Result<Vec<InstanceStatusReport>> {
-    let registry = Registry::new()?;
+pub fn status_all_with_registry(registry: &Registry) -> Result<Vec<InstanceStatusReport>> {
     let instances = registry.list()?;
     Ok(instances.iter().map(status_for_instance).collect())
 }

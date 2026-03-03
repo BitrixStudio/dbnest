@@ -16,6 +16,11 @@ impl Registry {
         Ok(Self { dirs })
     }
 
+    pub fn with_dirs(dirs: Dirs) -> Result<Self> {
+        dirs.ensure()?;
+        Ok(Self { dirs })
+    }
+
     pub fn dirs(&self) -> &Dirs {
         &self.dirs
     }
