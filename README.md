@@ -28,9 +28,10 @@ Planned next:
 
 ````bash
 cargo install dbnest
+````
 
 ### From source
-```bash
+````bash
 cargo install --path crates/dbnest-cli
 ````
 
